@@ -2,31 +2,33 @@
 import turtle
 import random
 
-
 class JuegoAhorcado:
-    """
-    Juego del Ahorcado - POO con Turtle.
-    Corrección: _levantar_ventana() fuerza el foco antes de cada textinput.
-    """
+    """Juego del Ahorcado con Programación Orientada a Objetos usando Turtle."""
 
     def __init__(self):
+        # Configuración de la ventana principal
         self.pantalla = turtle.Screen()
         self.pantalla.title("El Ahorcado - POO con Turtle")
         self.pantalla.bgcolor("#1e1e2e")
         self.pantalla.setup(width=800, height=600)
-        self.pantalla.tracer(0)
+        
+        # Desactiva la animación automática para que el dibujo aparezca de golpe
+        self.pantalla.tracer(0) 
 
+        # Tortuga para dibujar la horca y el muñeco
         self.lapiz = turtle.Turtle()
         self.lapiz.hideturtle()
         self.lapiz.speed(0)
         self.lapiz.pensize(4)
         self.lapiz.color("#cdd6f4")
 
+        # Tortuga exclusiva para los textos (permite borrar el texto sin borrar el dibujo)
         self.escritor = turtle.Turtle()
         self.escritor.hideturtle()
         self.escritor.penup()
         self.escritor.color("#cdd6f4")
 
+        # Variables de estado del juego
         self.palabras = [
             "python", "programacion", "universidad", "objeto",
             "clase", "metodo", "atributo", "herencia", "turtle",
@@ -35,20 +37,18 @@ class JuegoAhorcado:
         self.palabra_secreta    = ""
         self.letras_adivinadas  = []
         self.letras_falladas    = []
-        self.max_intentos       = 6
+        self.max_intentos       = 6 # Seis intentos por las 6 partes del cuerpo
         self.intentos_restantes = self.max_intentos
 
         self.pantalla.update()
 
     # ----------------------------------------------------------
-    # CORRECCIÓN CLAVE: forzar foco de ventana antes de textinput
+    # Corrección para la ventana emergente
     # ----------------------------------------------------------
-
     def _levantar_ventana(self):
         """
-        Usa tkinter (base de turtle) para traer la ventana al frente
-        antes de mostrar cualquier textinput. Sin esto, el diálogo
-        queda oculto detrás y parece que el juego no responde.
+        Fuerza a que la ventana de texto aparezca al frente. 
+        En turtle a veces la ventana de textinput se queda escondida atrás.
         """
         try:
             canvas = self.pantalla.getcanvas()
@@ -59,36 +59,35 @@ class JuegoAhorcado:
             root.focus_force()
             self.pantalla.update()
         except Exception:
-            pass
+            pass 
 
     # ----------------------------------------------------------
-    # DIBUJO DE LA HORCA
+    # Funciones de dibujo (usando coordenadas fijas)
     # ----------------------------------------------------------
-
     def dibujar_horca(self):
-        """Dibuja la estructura completa de la horca con coordenadas fijas."""
+        """Dibuja la estructura base de la horca."""
         self.lapiz.penup()
         self.lapiz.color("#f38ba8")
         self.lapiz.pensize(5)
 
-        # 1) BASE horizontal
+        # Base horizontal
         self.lapiz.goto(-100, -100)
         self.lapiz.pendown()
         self.lapiz.goto(100, -100)
 
-        # 2) POSTE VERTICAL
+        # Poste vertical
         self.lapiz.penup()
         self.lapiz.goto(-50, -100)
         self.lapiz.pendown()
         self.lapiz.goto(-50, 150)
 
-        # 3) TECHO SUPERIOR
+        # Techo superior
         self.lapiz.penup()
         self.lapiz.goto(-50, 150)
         self.lapiz.pendown()
         self.lapiz.goto(50, 150)
 
-        # 4) CUERDA
+        # Cuerda
         self.lapiz.penup()
         self.lapiz.goto(50, 150)
         self.lapiz.pendown()
@@ -97,10 +96,7 @@ class JuegoAhorcado:
         self.lapiz.penup()
         self.pantalla.update()
 
-    # ----------------------------------------------------------
-    # PARTES DEL CUERPO
-    # ----------------------------------------------------------
-
+    # --- Dibujo del muñeco (Empieza en X=50, bajo la cuerda) ---
     def dibujar_cabeza(self):
         self.lapiz.color("#a6e3a1")
         self.lapiz.pensize(3)
@@ -163,7 +159,7 @@ class JuegoAhorcado:
         self.pantalla.update()
 
     def dibujar_parte_cuerpo(self, numero_error):
-        """Despachador: dibuja la parte correspondiente al error N."""
+        """Llama a la función de dibujo correspondiente según el número de errores."""
         partes = {
             1: self.dibujar_cabeza,
             2: self.dibujar_torso,
@@ -176,20 +172,16 @@ class JuegoAhorcado:
             partes[numero_error]()
 
     # ----------------------------------------------------------
-    # TEXTO Y PANEL DE INFORMACIÓN
+    # Interfaz de texto
     # ----------------------------------------------------------
-
     def mostrar_titulo(self):
         self.escritor.penup()
         self.escritor.goto(0, 230)
         self.escritor.color("#cba6f7")
-        self.escritor.write(
-            "EL  AHORCADO",
-            align="center",
-            font=("Courier", 22, "bold")
-        )
+        self.escritor.write("EL  AHORCADO", align="center", font=("Courier", 22, "bold"))
 
     def mostrar_palabra(self):
+        # Construye el texto con las letras adivinadas o guiones bajos si falta adivinar
         display = "  ".join(
             letra.upper() if letra in self.letras_adivinadas else "_"
             for letra in self.palabra_secreta
@@ -197,23 +189,19 @@ class JuegoAhorcado:
         self.escritor.penup()
         self.escritor.goto(0, -185)
         self.escritor.color("#a6e3a1")
-        self.escritor.write(
-            display,
-            align="center",
-            font=("Courier", 18, "bold")
-        )
+        self.escritor.write(display, align="center", font=("Courier", 18, "bold"))
 
     def mostrar_panel_info(self):
-        # Intentos restantes
+        # Panel de intentos restantes
         self.escritor.penup()
         self.escritor.goto(180, 80)
         self.escritor.color("#f9e2af")
         self.escritor.write(
             f"Intentos: {self.intentos_restantes} / {self.max_intentos}",
-            align="left",
-            font=("Courier", 13, "bold")
+            align="left", font=("Courier", 13, "bold")
         )
-        # Letras falladas
+        
+        # Panel de letras falladas
         self.escritor.penup()
         self.escritor.goto(180, 40)
         self.escritor.color("#f38ba8")
@@ -224,26 +212,26 @@ class JuegoAhorcado:
         self.escritor.write(texto, align="left", font=("Courier", 12, "normal"))
 
     def limpiar_info(self):
-        """Borra solo el texto (escritor) y lo redibuja actualizado."""
+        """Borra los textos anteriores y los redibuja con los datos actualizados."""
         self.escritor.clear()
         self.mostrar_titulo()
         self.mostrar_palabra()
         self.mostrar_panel_info()
         self.pantalla.update()
 
+    # ----------------------------------------------------------
+    # Lógica de fin de juego
+    # ----------------------------------------------------------
     def verificar_victoria(self):
         return all(letra in self.letras_adivinadas for letra in self.palabra_secreta)
 
     def mostrar_resultado(self, gano: bool):
         self.escritor.penup()
         self.escritor.goto(0, 175)
+        
         if gano:
             self.escritor.color("#a6e3a1")
-            self.escritor.write(
-                "¡¡ G A N A S T E !!",
-                align="center",
-                font=("Courier", 20, "bold")
-            )
+            self.escritor.write("¡¡ G A N A S T E !!", align="center", font=("Courier", 20, "bold"))
             self.pantalla.update()
             self._levantar_ventana()
             self.pantalla.textinput(
@@ -253,11 +241,7 @@ class JuegoAhorcado:
             )
         else:
             self.escritor.color("#f38ba8")
-            self.escritor.write(
-                "¡ P E R D I S T E !",
-                align="center",
-                font=("Courier", 20, "bold")
-            )
+            self.escritor.write("¡ P E R D I S T E !", align="center", font=("Courier", 20, "bold"))
             self.pantalla.update()
             self._levantar_ventana()
             self.pantalla.textinput(
@@ -267,11 +251,9 @@ class JuegoAhorcado:
             )
 
     # ----------------------------------------------------------
-    # BUCLE PRINCIPAL
+    # Bucle principal del juego
     # ----------------------------------------------------------
-
     def jugar(self):
-        """Método principal: selecciona palabra y gestiona el bucle del juego."""
         self.palabra_secreta    = random.choice(self.palabras)
         self.letras_adivinadas  = []
         self.letras_falladas    = []
@@ -284,7 +266,6 @@ class JuegoAhorcado:
         self.pantalla.update()
 
         while True:
-            # ← CORRECCIÓN: levanta la ventana antes de pedir input
             self._levantar_ventana()
 
             entrada = self.pantalla.textinput(
@@ -294,32 +275,31 @@ class JuegoAhorcado:
                 "Escribe una letra:"
             )
 
-            if entrada is None:          # Jugador cerró el diálogo
+            # Cierra el juego si el usuario presiona cancelar
+            if entrada is None:          
                 break
 
             letra = entrada.strip().lower()
 
-            # Validación 1: exactamente una letra
+            # Valida que sea solo una letra del abecedario
             if len(letra) != 1 or not letra.isalpha():
                 self._levantar_ventana()
                 self.pantalla.textinput(
                     "Entrada inválida",
-                    "Debes ingresar UNA sola letra del alfabeto.\n"
-                    "Presiona OK e inténtalo de nuevo."
+                    "Debes ingresar UNA sola letra.\nPresiona OK e inténtalo de nuevo."
                 )
                 continue
 
-            # Validación 2: no repetida
+            # Valida que la letra no se haya ingresado antes
             if letra in self.letras_adivinadas or letra in self.letras_falladas:
                 self._levantar_ventana()
                 self.pantalla.textinput(
                     "Letra repetida",
-                    f"La letra '{letra.upper()}' ya fue ingresada.\n"
-                    "Presiona OK e intenta con otra."
+                    f"La letra '{letra.upper()}' ya fue ingresada.\nPresiona OK e intenta con otra."
                 )
                 continue
 
-            # Procesa la letra
+            # Procesamiento de la jugada
             if letra in self.palabra_secreta:
                 self.letras_adivinadas.append(letra)
             else:
@@ -330,6 +310,7 @@ class JuegoAhorcado:
 
             self.limpiar_info()
 
+            # Evalúa si se alcanzó la victoria o la derrota
             if self.verificar_victoria():
                 self.mostrar_resultado(gano=True)
                 break
@@ -339,7 +320,7 @@ class JuegoAhorcado:
                 break
 
 
-# -------------------------------------------------------
+# Ejecución del programa
 if __name__ == "__main__":
     juego = JuegoAhorcado()
     juego.jugar()
